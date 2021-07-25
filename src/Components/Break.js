@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import moment from 'moment';
 
 const Break = () => {
     //Initialize break length using useState
@@ -15,11 +15,12 @@ const Break = () => {
     };
     
     const incrementBreakLengthByOneMinute = () => setBreakLengthInSeconds(breakLengthInSeconds + 60);
-
+         // the seconds to minutes conversion is here!
+    const breakLengthInMinutes = moment.duration(breakLengthInSeconds, 's').minutes();
     return (
         <div>
         <p id="break-label">Break</p>
-        <p id="break-length">{breakLengthInSeconds}</p>
+        <p id="break-length">{breakLengthInMinutes}</p>
         <button id="break-increment" onClick={incrementBreakLengthByOneMinute}> + </button>
         <button id="break-decrement" onClick={decrementBreakLengthByOneMinute}> - </button>
         </div>
