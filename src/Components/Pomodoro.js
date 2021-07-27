@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 class Pomodoro extends React.Component {
   
@@ -192,61 +192,61 @@ class Pomodoro extends React.Component {
   render () {
     
     return (
-      <div class="pomodoro__container">
+      <div className="pomodoro__container">
         
-      <h1 class="pomodoro__container__heading1">Pomodoro Clock</h1>
+      <h1 className="pomodoro__container__heading1">Pomodoro Clock</h1>
       
-      <div class="controls">
+      <div className="controls">
         <div>
-          <h2 id="break-label" class="controls__header">Break Length</h2>
-        <div class="controls__inner">
+          <h2 id="break-label" className="controls__header">Break Length</h2>
+        <div className="controls__inner">
           <div>
-            <button class="button button--increment" id="break-decrement" onClick={this.breakDecrement}>-</button>
+            <button className="button button--increment" id="break-decrement" onClick={this.breakDecrement}>-</button>
           </div>
           <div>
-            <p id="break-length" class="controls__inner__length">{this.state.breakLength}</p>
+            <p id="break-length" className="controls__inner__length">{this.state.breakLength}</p>
           </div>
           <div>
-            <button class="button button--increment" id="break-increment" onClick={this.breakIncrement}>+</button>
+            <button className="button button--increment" id="break-increment" onClick={this.breakIncrement}>+</button>
           </div>
         </div>
         </div>
       
       <div>
-        <h2 id="session-label" class="controls__header">Session Length</h2>
-                <div class="controls__inner">
+        <h2 id="session-label" className="controls__header">Session Length</h2>
+                <div className="controls__inner">
         <div>
-          <button class="button button--increment" id="session-decrement" onClick={this.sessionDecrement}>-</button>
+          <button className="button button--increment" id="session-decrement" onClick={this.sessionDecrement}>-</button>
         </div>
         <div>
-          <p id="session-length" class="controls__inner__length">{this.state.sessionLength}</p>
+          <p id="session-length" className="controls__inner__length">{this.state.sessionLength}</p>
         </div>
         <div>
-          <button class="button button--increment" id="session-increment" onClick={this.sessionIncrement}>+</button>
+          <button className="button button--increment" id="session-increment" onClick={this.sessionIncrement}>+</button>
         </div>
       </div>       
         </div>
         </div>
 
-        <div class="session__container">
-          <h3 id="timer-label" class="session__container__header">{this.state.timerType}</h3>
+        <div className="session__container">
+          <h3 id="timer-label" className="session__container__header">{this.state.timerType}</h3>
       
-          <div id="time-left" class="session__container__timer">
+          <div id="time-left" className="session__container__timer">
             
             { this.state.minutes < 10 ? '0' + this.state.minutes : this.state.minutes}:{this.state.seconds < 10 ? '0' + this.state.seconds : this.state.seconds}
             </div>
          
-          <div class="session__container__controls">
+          <div className="session__container__controls">
             
-          <button class="button button--start--stop" id="start_stop" onClick={this.timerControl}>{this.state.timerStatus === '' ? 'Start' : 'Pause'} </button>
+          <button className="button button--start--stop" id="start_stop" onClick={this.timerControl}>{this.state.timerStatus === '' ? 'Start' : 'Pause'} </button>
         
-          <button class="button button--start--stop button--start--stop--start" id="reset" onClick={this.reset}>Reset</button>
+          <button className="button button--start--stop button--start--stop--start" id="reset" onClick={this.reset}>Reset</button>
         
           <audio ref="beepSound" id="beep" src="https://bobmatyas.github.io/fcc-pomodoro-clock/sounds/beep.mp3" />
           </div>
          </div>
        </div>
-    )
+    );
   }
 }
 
