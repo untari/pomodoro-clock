@@ -1,38 +1,134 @@
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+#root {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  background-color: #7fcc6e;
+}
+
+h2 {
+    font-size: 40px;
+    &::before {
+      content:'\f2f2';
+      font-family:'Font Awesome 5 Free';
+      font-weight: 900;
+      position: relative;
+      color: #00796B;
+      right: 8px;
+    }
+    margin-bottom: 0px;
+  }
+
+#container {
+  border: solid 10pt #D7CCC8;
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 4px;
+}
+
+button {
+  padding: 12px;
+  border-radius: 8px;  
+}
+
+#startButton::before {
+	content:'\f0da';
+	font-family:'Font Awesome 5 Free';
+	font-weight: 900;
+    position: relative;
+    right: 4px;
+}
+
+#stopButton::before {
+	content:'\f04c';
+	font-family:'Font Awesome 5 Free';
+	font-weight: 900;
+    position: relative;
+    right: 4px;
+}
+
+#reset::before {
+  content:'\f2f1';
+  font-family:'Font Awesome 5 Free';
+  font-weight: 900;
+  position: relative;
+  right: 4px;
+}
+
+#break-decrement::before, #session-decrement::before {
+  content:'\f068';
+  font-family:'Font Awesome 5 Free';
+  font-weight: 900;
+}
+
+#break-increment::before, #session-increment::before {
+    content:'\f067';
+	font-family:'Font Awesome 5 Free';
+	font-weight: 900;
+}
+
+button.running {
+  color: red;
+}
+
+button.stop {
+  color: blue;
+}
+
+span.hide {
+  display: none;
+}
+
+span.show {
+  display: block;
+}
+
+.label {
+  font-size: 20pt;
+  font-weight: bold;
+}
+
+#time-left {
+  font-size: 40pt;
+  font-weight: bold;
+}
+
+#timer-container {
+  text-align: center;
+  margin-bottom: auto;
+  padding-bottom: auto;
+  border-bottom: solid 1pt #D7CCC8;
+  display: grid;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.innerContainer {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: repeat(2, 1fr); 
+  justify-items: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.lengthContainer {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: repeat(3, 1fr); 
+  justify-items: center;
+}
+
+#session-container, #break-container {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: solid 1pt #D7CCC8;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  grid-template-columns: repeat(2, 1fr); 
+  justify-items: center;
+  grid-gap: 1px;
+  grid-column-gap: 2px;
 }

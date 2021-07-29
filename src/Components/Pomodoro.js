@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 const STOP_STATE = 'stop'
 const RUNNING_STATE = 'running'
 const SESSION_LABEL = 'Session'
