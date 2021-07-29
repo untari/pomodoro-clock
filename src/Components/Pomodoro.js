@@ -1,253 +1,184 @@
 import React from 'react';
 
+
+const STOP_STATE = 'stop'
+const RUNNING_STATE = 'running'
+const SESSION_LABEL = 'Session'
+const BREAK_LABEL = 'Break'
+
+const INITIAL_STATE = {
+      breakLabel: 'Break Length',
+      sessionLabel: 'Session Length',
+      timerLabel: SESSION_LABEL,
+      breakLength: 5,
+      sessionLength: 25,
+      timerState: STOP_STATE,
+      intervalID: '',
+      timerCount: 0
+    }
+
 class Pomodoro extends React.Component {
-  
-  constructor (props) {
+  constructor(props) {
     super(props);
+    this.state = INITIAL_STATE
+    this.resetTimer = this.resetTimer.bind(this)
+    this.incrementSession = this.incrementSession.bind(this)
+    this.decrementSession = this.decrementSession.bind(this)
+    this.controllTimer = this.controllTimer.bind(this)
+    this.decrementBreak = this.decrementBreak.bind(this)
+    this.incrementBreak = this.incrementBreak.bind(this)
     
-    this.state = {
-      counterLength: 600,
-      sessionLength: 25,
-      breakLength: 5,
-      timeLeft: '25:00',
-      minutes: 25,
-      seconds: 0,
-      timerStatus: '',
-      timerType: 'Session'
+    this.startCountDown = this.startCountDown.bind(this)
+    this.countUp = this.countUp.bind(this)
+    this.calculateRest = this.calculateRest.bind(this)
+    this.stopCountDown = this.stopCountDown.bind(this)
+    this.zeroPadding = this.zeroPadding.bind(this)
+  }
+  
+  decrementBreak() {
+    let currentVal = this.state.breakLength
+    if (currentVal > 1) { currentVal-- }
+    this.setState({ breakLength: currentVal })
+  }
+  
+  incrementBreak() {
+    let currentVal = this.state.breakLength
+    if (currentVal < 60) { currentVal++ }
+    this.setState({ breakLength: currentVal })    
+  }
+  
+  resetTimer() {
+    console.log('resetTimer!')
+    const audioItem = document.getElementById('beep')
+    audioItem.pause()
+    audioItem.currentTime = 0
+    this.stopCountDown()
+    this.setState(INITIAL_STATE)
+  }
+  
+  incrementSession() {
+    let currentVal = this.state.sessionLength
+    if (currentVal < 60) { currentVal++ }
+    this.setState({ sessionLength: currentVal })
+  }
+  
+  decrementSession() {
+    let currentVal = this.state.sessionLength
+    if (currentVal > 1) { currentVal-- }
+    this.setState({ sessionLength: currentVal })
+  }
+  
+  stopCountDown() {
+     this.setState({ timerState: STOP_STATE })
+     console.log(this.state.intervalId)
+     clearInterval(this.state.intervalId)
+  }
+  
+  startCountDown() {
+    this.timerId = setInterval(this.countUp, 1000)
+    this.setState({intervalId: this.timerId})
+  }
+  
+  calculateRest() {
+    return (this.state.sessionLength * 60) - this.state.timerCount
+  }
+  
+  // return array
+  restTimer() {
+    const rest = this.calculateRest()
+    let min = Math.floor(rest / 60)
+    let sec = rest % 60
+    return [this.zeroPadding(2, min), this.zeroPadding(2, sec)] 
+  }
+  
+  zeroPadding(len, val) {
+    return (Array(len).join('0') + val ).slice(-len)
+  }
+  
+  countUp() {
+    const timerCount = this.state.timerCount + 1
+    const rest = this.calculateRest()
+    this.setState({ timerCount: timerCount})
+    this.setState({ timerRest: rest })
+    if (rest === 0) {
+      const currentLabel = this.state.timerLabel
+      this.resetTimer()
+      if (currentLabel === SESSION_LABEL) {
+        this.setState({sessionLength: this.state.breakLength})
+        this.setState({ timerLabel: BREAK_LABEL })
+      } else {
+        this.setState({sessionLength: this.state.sessionLength})
+        this.setState({ timerLabel: SESSION_LABEL })        
+      }
+      this.beepSound()
+      this.controllTimer()
     }
-    
-    this.timerControl = this.timerControl.bind(this);
-    this.reset = this.reset.bind(this);
-    this.breakDecrement = this.breakDecrement.bind(this);     
-    this.breakIncrement = this.breakIncrement.bind(this);  
-    this.sessionDecrement = this.sessionDecrement.bind(this);     
-    this.sessionIncrement = this.sessionIncrement.bind(this);  
-    this.addZero = this.addZero.bind(this);
-    this.breakStart = this.breakStart.bind(this);
-    this.sessionStart = this.sessionStart.bind(this);
-    this.breakCounter = this.breakCounter.bind(this);
   }
-   
-  breakDecrement () {
-    if (this.state.timerStatus == 'running'  || this.state.timerStatus == 'paused') { return };
-    const { breakLength } = this.state;    
-    let newBreakLength = breakLength - 1;
-    if (breakLength > 1) {
-      this.setState({
-          breakLength: newBreakLength
-      });
+  
+  
+  controllTimer() {
+    if (this.state.timerState === STOP_STATE) {
+      this.setState({ timerState: RUNNING_STATE })
+      this.startCountDown()
+    } else {
+      this.stopCountDown()
     }
   }
   
-  breakIncrement () {
-    if (this.state.timerStatus == 'running'  || this.state.timerStatus == 'paused') { return };
-    const { breakLength } = this.state;
-    let newBreakLength = breakLength + 1;
-    if (breakLength < 60) {
-      this.setState({
-          breakLength: newBreakLength
-      });
-    }
-  }
-
-  sessionDecrement () {
-    if (this.state.timerStatus == 'running' || this.state.timerStatus == 'paused') { return };
-    const { sessionLength, minutes } = this.state;    
-    let newSessionLength = sessionLength - 1;
-    if (sessionLength > 1) {
-      this.setState({
-          sessionLength: newSessionLength,
-          minutes: newSessionLength,
-      });
-    }
-  }
+  beepSound() {
+   const audioItem = document.getElementById('beep')
+   audioItem.play().then(() => {
+      // Automatic playback started!
+   }).catch((error) => {
+     // Automatic playback failed.
+     // Show a UI element to let the user manually start playback.
+   })
+ }
   
-  sessionIncrement () {
-    if (this.state.timerStatus == 'running' || this.state.timerStatus == 'paused') { return };
-    const { sessionLength, minutes } = this.state;
-    let newSessionLength = sessionLength + 1;
-    if (sessionLength < 60) {
-      this.setState({
-          sessionLength: newSessionLength,
-          minutes: newSessionLength,
-      });
-    }
-  }
-  
-   timerControl () { 
-     if (this.state.timerStatus === 'running') {
-      clearInterval(this.timer);
-      clearInterval(this.breakTimer); 
-      this.setState({
-        timerStatus: 'paused',
-      })
-      return;
-     } else {
-        this.setState({
-          timerStatus: 'running'
-        });
-     }
-     
-     if (this.state.timerType === 'Session') {
-       this.timer = setInterval(() => this.sessionStart(), 1000);
-     } else if (this.state.timerType === 'Break') {
-       
-     }
-     
-     
-   }
-                         
-  sessionStart () {
-     const { seconds, minutes } = this.state
-  
-            if (seconds > 0) {
-                this.setState(({ seconds }) => ({
-                    seconds: seconds - 1
-                }))
-              
-
-            }
-            if (seconds === 0) {
-              let minutesDisplay = this.addZero(minutes);
-              let secondsDisplay = '00'
-                if (minutes === 0) {
-                    beep.play();
-                    clearInterval(this.timer)
-                    this.setState({
-                      timerStatus: ''
-                    });
-                    this.breakStart();
-                } else {
-                    this.setState(({ minutes }) => ({
-                        minutes: minutes - 1,
-                        seconds: 59
-                    }))
-                }
-            } 
-  }      
-
-  breakStart () {
-   let minutes = this.state.breakLength; 
-   this.setState({
-      timerType: 'Break',
-      timerStatus: 'running',
-      minutes: minutes
-   });
-     
-     this.breakTimer = setInterval(() => this.breakCounter(), 1000);
-       
-  }
-  
-  breakCounter () {
-    const { seconds, minutes } = this.state     
-      
-            if (seconds > 0) {
-                this.setState(({ seconds }) => ({
-                    seconds: seconds - 1
-                }))
-              
-            }
-            if (seconds === 0) {
-              let minutesDisplay = this.addZero(minutes);
-              let secondsDisplay = '00'
-                if (minutes === 0) {
-                    beep.play();
-                    clearInterval(this.breakTimer);
-                    let sessionLength = this.state.sessionLength
-                    this.setState({
-                      timerType: 'Session',
-                      seconds: 0,
-                      minutes: sessionLength,
-                      timerStatus: ''
-                    });
-         
-                    this.timerControl();
-                } else {
-                    this.setState(({ minutes }) => ({
-                        minutes: minutes - 1,
-                        seconds: 59
-                    }))
-                }
-            } 
-        }
-  
-  reset () {
-    clearInterval(this.timer);
-    clearInterval(this.breakTimer);
-    beep.load();
-    this.setState({
-      breakLength: 5,
-      sessionLength: 25,
-      minutes: 25,
-      seconds: 0,
-      timerStatus: '',
-      timerType: 'Session'
-    })
-  }
-
-   addZero (value) {
-     return ("0" + value).slice(-2);
-   }
-
   render () {
-    
+    const timerState = this.state.timerState
+    let startStyle = (timerState === RUNNING_STATE ? 'hide' : 'show')
+    let stopStyle = (timerState === STOP_STATE ? 'hide' : 'show')
+    let restTimer = this.restTimer()
+    let sessionLabel = SESSION_LABEL
     return (
-      <div className="pomodoro__container">
-        
-      <h1 className="pomodoro__container__heading1">Pomodoro Clock</h1>
-      
-      <div className="controls">
-        <div>
-          <h2 id="break-label" className="controls__header">Break Length</h2>
-        <div className="controls__inner">
-          <div>
-            <button className="button button--increment" id="break-decrement" onClick={this.breakDecrement}>-</button>
-          </div>
-          <div>
-            <p id="break-length" className="controls__inner__length">{this.state.breakLength}</p>
-          </div>
-          <div>
-            <button className="button button--increment" id="break-increment" onClick={this.breakIncrement}>+</button>
+      <div id='wrapper'>
+      <h2>Pomodoro Clock</h2>
+      <div id="container">
+        <div id="timer-container">
+          <div id="timer-label" className='label'>{this.state.timerLabel}</div>
+          <div id="time-left">{restTimer[0]}:{restTimer[1]}</div>
+          <div className="innerContainer">
+            <button id="start_stop" onClick={this.controllTimer} className={this.state.timerState}>
+            <audio id="beep" preload="auto" 
+          src="https://bobmatyas.github.io/fcc-pomodoro-clock/sounds/beep.mp3" />
+              <span id='startButton' className={startStyle}>Start</span>
+              <span id='stopButton' className={stopStyle}>Stop</span>
+            </button>
+            <button id='reset' onClick={this.resetTimer}>Reset</button>  
           </div>
         </div>
+         <div id="break-container">
+          <div id='break-label' className='label'>{this.state.breakLabel}</div>
+           <div className="lengthContainer">
+            <button id='break-decrement' onClick={this.decrementBreak}></button>
+            <div id="break-length">{this.state.breakLength}</div>
+             <button id='break-increment' onClick={this.incrementBreak}></button>
+           </div>
         </div>
-      
-      <div>
-        <h2 id="session-label" className="controls__header">Session Length</h2>
-                <div className="controls__inner">
-        <div>
-          <button className="button button--increment" id="session-decrement" onClick={this.sessionDecrement}>-</button>
-        </div>
-        <div>
-          <p id="session-length" className="controls__inner__length">{this.state.sessionLength}</p>
-        </div>
-        <div>
-          <button className="button button--increment" id="session-increment" onClick={this.sessionIncrement}>+</button>
-        </div>
-      </div>       
-        </div>
-        </div>
-
-        <div className="session__container">
-          <h3 id="timer-label" className="session__container__header">{this.state.timerType}</h3>
-      
-          <div id="time-left" className="session__container__timer">
-            
-            { this.state.minutes < 10 ? '0' + this.state.minutes : this.state.minutes}:{this.state.seconds < 10 ? '0' + this.state.seconds : this.state.seconds}
-            </div>
-         
-          <div className="session__container__controls">
-            
-          <button className="button button--start--stop" id="start_stop" onClick={this.timerControl}>{this.state.timerStatus === '' ? 'Start' : 'Pause'} </button>
-        
-          <button className="button button--start--stop button--start--stop--start" id="reset" onClick={this.reset}>Reset</button>
-        
-          <audio ref="beepSound" id="beep" src="https://bobmatyas.github.io/fcc-pomodoro-clock/sounds/beep.mp3" />
+        <div id="session-container">
+          <div id='session-label' className='label'>{this.state.sessionLabel}</div>
+          <div className="lengthContainer">
+            <button id='session-decrement' onClick={this.decrementSession}></button>
+            <div id="session-length">{this.state.sessionLength}</div>
+            <button id='session-increment' onClick={this.incrementSession}></button>
           </div>
-         </div>
-       </div>
-    );
+        </div>
+      </div>
+     </div>
+    )
   }
 }
+
 
 export default Pomodoro;
